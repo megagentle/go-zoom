@@ -15,6 +15,8 @@ type MeetingsServicer interface {
 	List(ctx context.Context, userID string, opts *MeetingsListOptions) (*MeetingsListResponse, *http.Response, error)
 	Create(ctx context.Context, userID string, opts *MeetingsCreateOptions) (*MeetingsCreateResponse, *http.Response, error)
 	Delete(ctx context.Context, meetingID int64, opts *MeetingsDeleteOptions) (*http.Response, error)
+	Get(ctx context.Context, meetingID int64, opts *MeetingsGetOptions) (*Meeting, *http.Response, error)
+	Update(ctx context.Context, meetingID int64, opts *MeetingsUpdateOptions) (*http.Response, error)
 }
 
 type MeetingsService struct {
@@ -242,6 +244,45 @@ type MeetingsDeleteOptions struct {
 func (m *MeetingsService) Delete(ctx context.Context, meetingID int64, opts *MeetingsDeleteOptions) (*http.Response, error) {
 	mID := strconv.Itoa(int(meetingID))
 	res, err := m.client.request(ctx, http.MethodDelete, "/meetings/"+url.QueryEscape(mID), opts, nil, nil)
+	if err != nil {
+		return res, errs.Wrap(err, "making request")
+	}
+
+	return res, nil
+}
+
+type MeetingsGetOptions struct {
+	MeetingID    int    `url:"-"`
+	OccurrenceID string `url:"occurrence_id,omitempty"`
+}
+
+func (m *MeetingsService) Get(ctx context.Context, meetingID int64, opts *MeetingsGetOptions) (*Meeting, *http.Response, error) {
+	out := &Meeting{}
+	mID := strconv.Itoa(int(meetingID))
+	res, err := m.client.request(ctx, http.MethodGet, "/meetings/"+url.QueryEscape(mID), opts, nil, out)
+	if err != nil {
+		return nil, res, errs.Wrap(err, "making request")
+	}
+
+	return out, res, nil
+}
+
+type MeetingsUpdateOptions struct {
+	MeetingID      int             `url:"-" json:"-"`
+	Topic          string          `json:"topic,omitempty"`
+	Type           MeetingType     `json:"type,omitempty"`
+	StartTime      *Time           `json:"start_time,omitempty"`
+	Duration       int             `json:"duration,omitempty"`
+	Timezone       string          `json:"timezone,omitempty"`
+	Password       string          `json:"password,omitempty"` // Max 10 characters. [a-z A-Z 0-9 @ - _ *]
+	Agenda         string          `json:"agenda,omitempty"`
+	TrackingFields []TrackingField `json:"tracking_fields,omitempty"`
+	Settings       MeetingSettings `json:"settings,omitempty"`
+}
+
+func (m *MeetingsService) Update(ctx context.Context, meetingID int64, opts *MeetingsUpdateOptions) (*http.Response, error) {
+	mID := strconv.Itoa(int(meetingID))
+	res, err := m.client.request(ctx, http.MethodPatch, "/meetings/"+url.QueryEscape(mID), opts, nil, nil)
 	if err != nil {
 		return res, errs.Wrap(err, "making request")
 	}
