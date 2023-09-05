@@ -134,7 +134,7 @@ type GetUserSettingsOpts struct {
 	EmailOrID string `url:"-"`
 }
 
-func (u *UsersService) GetSettings(ctx context.Context, EmailOrID string, opts *UsersDeleteOptions) (*UserSettings, *http.Response, error) {
+func (u *UsersService) GetSettings(ctx context.Context, EmailOrID string, opts *GetUserSettingsOpts) (*UserSettings, *http.Response, error) {
 	out := &UserSettings{}
 	res, err := u.client.request(ctx, http.MethodGet, "/users/"+url.QueryEscape(EmailOrID)+"/settings", opts, nil, out)
 	if err != nil {
