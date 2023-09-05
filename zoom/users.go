@@ -120,3 +120,26 @@ func (u *UsersService) Delete(ctx context.Context, userID string, opts *UsersDel
 
 	return res, nil
 }
+
+type UserSettings struct {
+	Feature UserSettingsFeature `json:"feature"`
+}
+
+type UserSettingsFeature struct {
+	MeetingCapacity int `json:"meeting_capacity"`
+}
+
+// GetUserOpts contains options for GetUser
+type GetUserSettingsOpts struct {
+	EmailOrID string `url:"-"`
+}
+
+func (u *UsersService) GetSettings(ctx context.Context, EmailOrID string, opts *UsersDeleteOptions) (*UserSettings, *http.Response, error) {
+	out := &UserSettings{}
+	res, err := u.client.request(ctx, http.MethodGet, "/users/"+url.QueryEscape(EmailOrID)+"/settings", opts, nil, out)
+	if err != nil {
+		return nil, res, errs.Wrap(err, "making request")
+	}
+
+	return out, res, nil
+}
