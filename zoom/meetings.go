@@ -64,11 +64,14 @@ func (m *MeetingsService) List(ctx context.Context, userID string, opts *Meeting
 }
 
 type MeetingsCreateOptions struct {
+	Agenda          *string                         `json:"agenda"`
 	DefaultPassword *bool                           `json:"default_password,omitempty"`
 	Duration        *int                            `json:"duration,omitempty"`
 	Settings        *MeetingsCreateOptionsSettings  `json:"settings,omitempty"`
 	StartTime       *MeetingsCreateOptionsStartTime `json:"start_time,omitempty"`
 	Type            *int                            `json:"type,omitempty"`
+	Timezone        *string                         `json:"timezone"`
+	Password        *string                         `json:"password"`
 }
 
 type MeetingsCreateOptionsStartTime time.Time
